@@ -7,7 +7,7 @@ const PORT = 3001;
 const WHOOP_AUTH_URL = 'https://api.prod.whoop.com/oauth/oauth2/auth';
 const WHOOP_TOKEN_URL = 'https://api.prod.whoop.com/oauth/oauth2/token';
 const WHOOP_API_BASE = 'https://api.prod.whoop.com/developer/v1';
-const REDIRECT_URI = 'http://localhost:5173/api/auth/callback';
+const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:5173/api/auth/callback';
 const SCOPES = 'read:recovery read:cycles offline';
 
 const CLIENT_ID = process.env.WHOOP_CLIENT_ID || '';
