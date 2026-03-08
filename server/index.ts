@@ -7,7 +7,8 @@ const PORT = 3001;
 const WHOOP_AUTH_URL = 'https://api.prod.whoop.com/oauth/oauth2/auth';
 const WHOOP_TOKEN_URL = 'https://api.prod.whoop.com/oauth/oauth2/token';
 const WHOOP_API_BASE = 'https://api.prod.whoop.com/developer/v1';
-const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:5173/api/auth/callback';
+const REDIRECT_URI = process.env.REDIRECT_URI || 'http://localhost:3001/api/auth/callback';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const SCOPES = 'read:recovery read:cycles offline';
 
 const CLIENT_ID = process.env.WHOOP_CLIENT_ID || '';
@@ -46,7 +47,8 @@ app.get('/api/auth/callback', async (req, res) => {
   const code = req.query.code as string;
 
   if (!code) {
-    res.status(400).json({ error: 'Missing authorization code' });
+    const error = (req.query.error as string) || 'missing_code';
+    res.redirect(`${FRONTEND_URL}?error=${encodeURIComponent(error)}`);
     return;
   }
 
@@ -77,10 +79,10 @@ app.get('/api/auth/callback', async (req, res) => {
       expires_at: Date.now() + data.expires_in * 1000,
     };
 
-    res.redirect('/');
+    res.redirect(FRONTEND_URL);
   } catch (err) {
     console.error('Token exchange error:', err);
-    res.status(500).json({ error: 'Token exchange failed' });
+    res.redirect(`${FRONTEND_URL}?error=token_exchange_failed`);
   }
 });
 
