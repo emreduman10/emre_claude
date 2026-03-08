@@ -1,33 +1,31 @@
 import { useState, useEffect } from 'react';
 import { WhoopData } from '../types';
-
-const WHOOP_API_BASE = 'https://api.prod.whoop.com/developer/v1';
+import { useAuth } from '../context/AuthContext';
 
 export function useWhoopData(): WhoopData & { loading: boolean } {
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState<WhoopData>({
     recovery: null,
     hrv: null,
     rhr: null,
     strain: null,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const token = import.meta.env.VITE_WHOOP_ACCESS_TOKEN;
-    if (!token) {
+    if (!isAuthenticated) {
+      setData({ recovery: null, hrv: null, rhr: null, strain: null });
       setLoading(false);
       return;
     }
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
+    setLoading(true);
 
     async function fetchWhoopData() {
       try {
         const [recoveryRes, cycleRes] = await Promise.allSettled([
-          fetch(`${WHOOP_API_BASE}/recovery`, { headers }),
-          fetch(`${WHOOP_API_BASE}/cycle`, { headers }),
+          fetch('/api/whoop/recovery'),
+          fetch('/api/whoop/cycle'),
         ]);
 
         let recovery: number | null = null;
@@ -42,9 +40,10 @@ export function useWhoopData(): WhoopData & { loading: boolean } {
             : recoveryData;
           if (latest?.score) {
             recovery = latest.score.recovery_score ?? null;
-            hrv = latest.score.hrv_rmssd_milli != null
-              ? Math.round(latest.score.hrv_rmssd_milli)
-              : null;
+            hrv =
+              latest.score.hrv_rmssd_milli != null
+                ? Math.round(latest.score.hrv_rmssd_milli)
+                : null;
             rhr = latest.score.resting_heart_rate ?? null;
           }
         }
@@ -55,9 +54,10 @@ export function useWhoopData(): WhoopData & { loading: boolean } {
             ? cycleData.records[0]
             : cycleData;
           if (latest?.score) {
-            strain = latest.score.strain != null
-              ? Math.round(latest.score.strain * 10) / 10
-              : null;
+            strain =
+              latest.score.strain != null
+                ? Math.round(latest.score.strain * 10) / 10
+                : null;
           }
         }
 
@@ -70,7 +70,7 @@ export function useWhoopData(): WhoopData & { loading: boolean } {
     }
 
     fetchWhoopData();
-  }, []);
+  }, [isAuthenticated]);
 
   return { ...data, loading };
 }

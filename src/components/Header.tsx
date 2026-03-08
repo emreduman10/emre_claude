@@ -1,8 +1,10 @@
+import { useAuth } from '../context/AuthContext';
 import { useWhoopData } from '../hooks/useWhoopData';
 import { getRecoveryZone } from '../utils/recoveryZone';
 
 export function Header() {
-  const { recovery, hrv, rhr, strain, loading } = useWhoopData();
+  const { isAuthenticated, loading: authLoading, login, logout } = useAuth();
+  const { recovery, hrv, rhr, strain, loading: whoopLoading } = useWhoopData();
   const zone = getRecoveryZone(recovery);
 
   const formatValue = (val: number | null, suffix = '') =>
@@ -16,7 +18,16 @@ export function Header() {
         </h1>
 
         <div className="flex items-center gap-6 text-sm">
-          {loading ? (
+          {authLoading ? (
+            <span className="text-gray-500 animate-pulse">Loading...</span>
+          ) : !isAuthenticated ? (
+            <button
+              onClick={login}
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Sign in with WHOOP
+            </button>
+          ) : whoopLoading ? (
             <span className="text-gray-500 animate-pulse">
               Loading WHOOP data...
             </span>
@@ -49,6 +60,12 @@ export function Header() {
                 <span className="text-gray-400">Strain</span>
                 <span className="font-semibold">{formatValue(strain)}</span>
               </div>
+              <button
+                onClick={logout}
+                className="text-gray-500 hover:text-gray-300 text-xs transition-colors"
+              >
+                Sign out
+              </button>
             </>
           )}
         </div>
