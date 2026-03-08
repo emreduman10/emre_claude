@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(() => {
-    window.location.href = 'http://localhost:3001/api/auth/login';
+    window.location.href = '/api/auth/login';
   }, []);
 
   const logout = useCallback(async () => {
