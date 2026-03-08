@@ -1,6 +1,7 @@
 import type { PlanEntry } from '../hooks/usePlans';
 import { WeekSelector } from './WeekSelector';
 import { DayNav } from './DayNav';
+import { GeneratePlanButton } from './GeneratePlanButton';
 
 interface SidebarProps {
   weeks: PlanEntry[];
@@ -8,6 +9,7 @@ interface SidebarProps {
   activeDay: string;
   onSelectWeek: (weekDate: string) => void;
   onSelectDay: (day: string) => void;
+  onPlanGenerated: (weekDate: string) => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -18,6 +20,7 @@ export function Sidebar({
   activeDay,
   onSelectWeek,
   onSelectDay,
+  onPlanGenerated,
   isOpen,
   onClose,
 }: SidebarProps) {
@@ -36,6 +39,7 @@ export function Sidebar({
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
+        <GeneratePlanButton onPlanGenerated={onPlanGenerated} />
         <WeekSelector
           weeks={weeks}
           activeWeek={activeWeek}

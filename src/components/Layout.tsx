@@ -9,6 +9,7 @@ interface LayoutProps {
   activeDay: string;
   onSelectWeek: (weekDate: string) => void;
   onSelectDay: (day: string) => void;
+  onPlanGenerated: (weekDate: string) => void;
   children: React.ReactNode;
 }
 
@@ -18,6 +19,7 @@ export function Layout({
   activeDay,
   onSelectWeek,
   onSelectDay,
+  onPlanGenerated,
   children,
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -32,6 +34,7 @@ export function Layout({
           activeDay={activeDay}
           onSelectWeek={onSelectWeek}
           onSelectDay={onSelectDay}
+          onPlanGenerated={onPlanGenerated}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />

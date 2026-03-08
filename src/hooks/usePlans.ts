@@ -13,29 +13,43 @@ function extractWeekDate(filename: string): string {
   return match ? match[1] : '';
 }
 
+function buildEntries(filenames: string[]): PlanEntry[] {
+  return filenames
+    .map((filename) => ({
+      weekDate: extractWeekDate(filename),
+      filename,
+    }))
+    .filter((e) => e.weekDate !== '')
+    .sort((a, b) => b.weekDate.localeCompare(a.weekDate));
+}
+
 export function usePlans() {
   const [availableWeeks, setAvailableWeeks] = useState<PlanEntry[]>([]);
   const [currentPlan, setCurrentPlan] = useState<WeekPlan | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const entries: PlanEntry[] = PLAN_MANIFEST.map((filename) => ({
-      weekDate: extractWeekDate(filename),
-      filename,
-    })).filter((e) => e.weekDate !== '');
-
-    // Sort descending (newest first)
-    entries.sort((a, b) => b.weekDate.localeCompare(a.weekDate));
-    setAvailableWeeks(entries);
+  const refreshPlanList = useCallback(async () => {
+    try {
+      const res = await fetch('/api/plans');
+      if (res.ok) {
+        const data = await res.json();
+        setAvailableWeeks(buildEntries(data.plans));
+        return;
+      }
+    } catch {
+      // Server unavailable — fall back to static manifest
+    }
+    setAvailableWeeks(buildEntries(PLAN_MANIFEST));
   }, []);
 
-  const loadPlan = useCallback(async (weekDate: string) => {
-    const entry = PLAN_MANIFEST.find((f) => f.includes(weekDate));
-    if (!entry) return;
+  useEffect(() => {
+    refreshPlanList();
+  }, [refreshPlanList]);
 
+  const loadPlan = useCallback(async (weekDate: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/plans/${entry}`);
+      const response = await fetch(`/plans/workout-plan-${weekDate}.md`);
       if (!response.ok) throw new Error('Failed to load plan');
       const markdown = await response.text();
       const plan = parseWeekPlan(markdown, weekDate);
@@ -48,5 +62,5 @@ export function usePlans() {
     }
   }, []);
 
-  return { availableWeeks, currentPlan, loadPlan, loading };
+  return { availableWeeks, currentPlan, loadPlan, loading, refreshPlanList };
 }

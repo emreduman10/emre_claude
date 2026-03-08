@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { DayView } from '../components/DayView';
@@ -9,7 +9,7 @@ import { usePlans } from '../hooks/usePlans';
 export function PlanPage() {
   const { weekDate, day } = useParams<{ weekDate: string; day?: string }>();
   const navigate = useNavigate();
-  const { availableWeeks, currentPlan, loadPlan, loading } = usePlans();
+  const { availableWeeks, currentPlan, loadPlan, loading, refreshPlanList } = usePlans();
 
   // Load plan when weekDate changes
   useEffect(() => {
@@ -36,6 +36,12 @@ export function PlanPage() {
     navigate(`/${weekDate}/${selectedDay}`);
   };
 
+  const handlePlanGenerated = useCallback(async (newWeekDate: string) => {
+    await refreshPlanList();
+    const todayDayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][new Date().getDay()];
+    navigate(`/${newWeekDate}/${todayDayName}`);
+  }, [refreshPlanList, navigate]);
+
   // Find the day plan
   const selectedDay = currentPlan?.days.find(
     (d) => d.dayName.toLowerCase() === day?.toLowerCase(),
@@ -48,6 +54,7 @@ export function PlanPage() {
       activeDay={day || ''}
       onSelectWeek={handleSelectWeek}
       onSelectDay={handleSelectDay}
+      onPlanGenerated={handlePlanGenerated}
     >
       {loading ? (
         <div className="flex items-center justify-center h-64">
