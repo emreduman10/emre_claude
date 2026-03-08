@@ -1,5 +1,4 @@
 import { useGeneratePlan } from '../hooks/useGeneratePlan';
-import { useAuth } from '../context/AuthContext';
 
 interface GeneratePlanButtonProps {
   onPlanGenerated: (weekDate: string) => void;
@@ -8,7 +7,6 @@ interface GeneratePlanButtonProps {
 export function GeneratePlanButton({
   onPlanGenerated,
 }: GeneratePlanButtonProps) {
-  const { isAuthenticated } = useAuth();
   const { generate, generating, error } = useGeneratePlan();
 
   async function handleClick() {
@@ -22,19 +20,13 @@ export function GeneratePlanButton({
     <div className="mb-4">
       <button
         onClick={handleClick}
-        disabled={generating || !isAuthenticated}
+        disabled={generating}
         className={`w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
           generating
             ? 'bg-gray-700 text-gray-400 cursor-wait'
-            : !isAuthenticated
-              ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-500 text-white cursor-pointer'
+            : 'bg-green-600 hover:bg-green-500 text-white cursor-pointer'
         }`}
-        title={
-          !isAuthenticated
-            ? 'Sign in with WHOOP first'
-            : 'Generate this week\'s plan from WHOOP data'
-        }
+        title="Generate this week's plan"
       >
         {generating ? (
           <span className="flex items-center justify-center gap-2">
@@ -65,11 +57,6 @@ export function GeneratePlanButton({
       </button>
       {error && (
         <p className="text-red-400 text-xs mt-1.5 px-1">{error}</p>
-      )}
-      {!isAuthenticated && (
-        <p className="text-gray-500 text-xs mt-1.5 px-1">
-          Sign in with WHOOP to generate plans
-        </p>
       )}
     </div>
   );

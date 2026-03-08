@@ -551,12 +551,6 @@ app.post('/api/generate-plan', async (_req, res) => {
     return;
   }
 
-  const accessToken = await ensureValidToken();
-  if (!accessToken) {
-    res.status(401).json({ error: 'Not authenticated with WHOOP' });
-    return;
-  }
-
   try {
     const { prevMonday, prevSunday, thisMonday, thisSunday } = getDateWindow();
     const filename = `workout-plan-${thisMonday}.md`;
@@ -567,6 +561,7 @@ app.post('/api/generate-plan', async (_req, res) => {
       res.json({
         success: true,
         filename,
+        weekDate: thisMonday,
         message: 'Plan already exists for this week',
         alreadyExisted: true,
       });
@@ -577,8 +572,29 @@ app.post('/api/generate-plan', async (_req, res) => {
       `Generating plan for ${thisMonday}. WHOOP data window: ${prevMonday} → ${prevSunday}`,
     );
 
-    // Fetch WHOOP data for prior week
-    const whoopDays = await fetchWeekWhoopData(prevMonday, prevSunday);
+    // Fetch WHOOP data for prior week (works with or without auth)
+    let whoopDays: DayData[];
+    const accessToken = await ensureValidToken();
+    if (accessToken) {
+      whoopDays = await fetchWeekWhoopData(prevMonday, prevSunday);
+    } else {
+      console.log('No WHOOP auth — generating plan without recovery data');
+      whoopDays = [];
+      const start = new Date(prevMonday);
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(start);
+        d.setUTCDate(start.getUTCDate() + i);
+        whoopDays.push({
+          date: d.toISOString().split('T')[0],
+          recoveryScore: null,
+          recoveryZone: 'unknown',
+          hrv: null,
+          rhr: null,
+          strain: null,
+          sleepScore: null,
+        });
+      }
+    }
     console.log(
       'WHOOP data fetched:',
       whoopDays.map((d) => `${d.date}: ${d.recoveryZone}`).join(', '),
