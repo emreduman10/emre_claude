@@ -1,4 +1,4 @@
-import { RecoveryZone, RecoveryZoneInfo } from '../types';
+import type { RecoveryZone, RecoveryZoneInfo } from '../types';
 import { RECOVERY_ZONES } from '../config/training';
 
 export function getRecoveryZone(score: number | null): RecoveryZoneInfo {

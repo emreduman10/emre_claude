@@ -1,4 +1,5 @@
-import { DAY_NAMES, DayName } from '../types';
+import type { DayName } from '../types';
+import { DAY_NAMES } from '../types';
 import { useWhoopData } from '../hooks/useWhoopData';
 import { getRecoveryZone } from '../utils/recoveryZone';
 

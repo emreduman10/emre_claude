@@ -1,4 +1,5 @@
-import { WeekPlan, DayPlan, DAY_NAMES } from '../types';
+import type { WeekPlan, DayPlan } from '../types';
+import { DAY_NAMES } from '../types';
 
 export function parseWeekPlan(markdown: string, weekDate: string): WeekPlan {
   const overview = extractSection(markdown, '# Week Overview', /^# /m);

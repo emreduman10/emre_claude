@@ -1,6 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { DayPlan } from '../types';
+import type { DayPlan } from '../types';
 
 interface DayViewProps {
   day: DayPlan;

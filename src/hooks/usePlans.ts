@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { WeekPlan } from '../types';
+import type { WeekPlan } from '../types';
 import { parseWeekPlan } from '../utils/markdownParser';
 import { PLAN_MANIFEST } from '../config/training';
 

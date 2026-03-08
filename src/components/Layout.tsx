@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { PlanEntry } from '../hooks/usePlans';
+import type { PlanEntry } from '../hooks/usePlans';
 
 interface LayoutProps {
   weeks: PlanEntry[];

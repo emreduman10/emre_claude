@@ -4,7 +4,7 @@ import { Layout } from '../components/Layout';
 import { DayView } from '../components/DayView';
 import { WeekOverview } from '../components/WeekOverview';
 import { usePlans } from '../hooks/usePlans';
-import { DAY_NAMES } from '../types';
+
 
 export function PlanPage() {
   const { weekDate, day } = useParams<{ weekDate: string; day?: string }>();

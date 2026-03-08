@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { WhoopData } from '../types';
+import type { WhoopData } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 export function useWhoopData(): WhoopData & { loading: boolean } {

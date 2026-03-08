@@ -1,4 +1,4 @@
-import { RecoveryZoneInfo } from '../types';
+import type { RecoveryZoneInfo } from '../types';
 
 export const RECOVERY_ZONES: RecoveryZoneInfo[] = [
   {

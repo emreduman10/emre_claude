@@ -1,4 +1,4 @@
-import { PlanEntry } from '../hooks/usePlans';
+import type { PlanEntry } from '../hooks/usePlans';
 import { WeekSelector } from './WeekSelector';
 import { DayNav } from './DayNav';
 

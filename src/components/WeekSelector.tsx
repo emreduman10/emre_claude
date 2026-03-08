@@ -1,4 +1,4 @@
-import { PlanEntry } from '../hooks/usePlans';
+import type { PlanEntry } from '../hooks/usePlans';
 import { formatWeekLabel } from '../utils/markdownParser';
 
 interface WeekSelectorProps {

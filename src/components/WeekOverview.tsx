@@ -1,6 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { WeekPlan } from '../types';
+import type { WeekPlan } from '../types';
 import { formatWeekLabel } from '../utils/markdownParser';
 import { FIXED_CONSTRAINTS, RECOVERY_ZONES } from '../config/training';
 
