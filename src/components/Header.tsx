@@ -22,9 +22,7 @@ export function Header() {
             <span className="text-gray-500 animate-pulse">Loading...</span>
           ) : !isAuthenticated ? (
             <a
-              href="http://localhost:3001/api/auth/login"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/api/auth/login"
               className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors inline-block no-underline"
             >
               Sign in with WHOOP

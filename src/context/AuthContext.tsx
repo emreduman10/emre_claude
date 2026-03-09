@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const checkAuth = useCallback(() => {
     fetch('/api/auth/status')
       .then((res) => res.json())
       .then((data) => setIsAuthenticated(data.authenticated))
@@ -26,8 +26,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    const onFocus = () => checkAuth();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [checkAuth]);
+
   const login = useCallback(() => {
-    window.open('http://localhost:3001/api/auth/login', '_blank');
+    window.location.href = '/api/auth/login';
   }, []);
 
   const logout = useCallback(async () => {

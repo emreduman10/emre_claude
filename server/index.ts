@@ -674,6 +674,16 @@ app.listen(PORT, () => {
     console.warn(
       'Warning: WHOOP_CLIENT_ID and/or WHOOP_CLIENT_SECRET not set. OAuth will not work.',
     );
+  } else {
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      response_type: 'code',
+      scope: SCOPES,
+    });
+    console.log(
+      `\nWHOOP Auth URL (copy to browser if button doesn't work):\n${WHOOP_AUTH_URL}?${params.toString()}\n`,
+    );
   }
   if (!ANTHROPIC_API_KEY) {
     console.warn(
