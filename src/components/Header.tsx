@@ -21,12 +21,12 @@ export function Header() {
           {authLoading ? (
             <span className="text-gray-500 animate-pulse">Loading...</span>
           ) : !isAuthenticated ? (
-            <a
-              href="/api/auth/login"
-              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors inline-block no-underline"
+            <button
+              onClick={() => { window.location.href = 'http://localhost:3001/api/auth/login'; }}
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer border-none"
             >
               Sign in with WHOOP
-            </a>
+            </button>
           ) : whoopLoading ? (
             <span className="text-gray-500 animate-pulse">
               Loading WHOOP data...
