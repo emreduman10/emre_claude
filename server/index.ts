@@ -73,13 +73,16 @@ app.get('/api/auth/url', (_req, res) => {
 });
 
 app.get('/api/auth/callback', async (req, res) => {
+  console.log('Callback hit! Query params:', req.query);
   const code = req.query.code as string;
 
   if (!code) {
     const error = (req.query.error as string) || 'missing_code';
+    console.error('Callback error — no code received:', error);
     res.redirect(`${FRONTEND_URL}?error=${encodeURIComponent(error)}`);
     return;
   }
+  console.log('Got authorization code, exchanging for token...');
 
   try {
     const response = await fetch(WHOOP_TOKEN_URL, {
