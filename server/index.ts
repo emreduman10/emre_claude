@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import crypto from 'crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import fs from 'fs';
 import path from 'path';
@@ -42,17 +43,21 @@ app.use(express.json());
 
 // --- Auth Routes ---
 
+let oauthState = '';
+
 app.get('/api/auth/login', (_req, res) => {
   if (!CLIENT_ID) {
     res.status(500).json({ error: 'WHOOP_CLIENT_ID not configured' });
     return;
   }
 
+  oauthState = crypto.randomUUID();
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     redirect_uri: REDIRECT_URI,
     response_type: 'code',
     scope: SCOPES,
+    state: oauthState,
   });
 
   res.redirect(`${WHOOP_AUTH_URL}?${params.toString()}`);
@@ -63,11 +68,13 @@ app.get('/api/auth/url', (_req, res) => {
     res.status(500).json({ error: 'WHOOP_CLIENT_ID not configured' });
     return;
   }
+  oauthState = crypto.randomUUID();
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     redirect_uri: REDIRECT_URI,
     response_type: 'code',
     scope: SCOPES,
+    state: oauthState,
   });
   res.json({ url: `${WHOOP_AUTH_URL}?${params.toString()}` });
 });
@@ -75,6 +82,7 @@ app.get('/api/auth/url', (_req, res) => {
 app.get('/api/auth/callback', async (req, res) => {
   console.log('Callback hit! Query params:', req.query);
   const code = req.query.code as string;
+  const state = req.query.state as string;
 
   if (!code) {
     const error = (req.query.error as string) || 'missing_code';
@@ -82,6 +90,13 @@ app.get('/api/auth/callback', async (req, res) => {
     res.redirect(`${FRONTEND_URL}?error=${encodeURIComponent(error)}`);
     return;
   }
+
+  if (state !== oauthState) {
+    console.error('State mismatch! Expected:', oauthState, 'Got:', state);
+    res.redirect(`${FRONTEND_URL}?error=state_mismatch`);
+    return;
+  }
+
   console.log('Got authorization code, exchanging for token...');
 
   try {
