@@ -35,16 +35,13 @@ export function useWhoopData(): WhoopData & { loading: boolean } {
 
         if (recoveryRes.status === 'fulfilled' && recoveryRes.value.ok) {
           const recoveryData = await recoveryRes.value.json();
-          const latest = Array.isArray(recoveryData.records)
-            ? recoveryData.records[0]
-            : recoveryData;
-          if (latest?.score) {
-            recovery = latest.score.recovery_score ?? null;
+          if (recoveryData?.score) {
+            recovery = recoveryData.score.recovery_score ?? null;
             hrv =
-              latest.score.hrv_rmssd_milli != null
-                ? Math.round(latest.score.hrv_rmssd_milli)
+              recoveryData.score.hrv_rmssd_milli != null
+                ? Math.round(recoveryData.score.hrv_rmssd_milli)
                 : null;
-            rhr = latest.score.resting_heart_rate ?? null;
+            rhr = recoveryData.score.resting_heart_rate ?? null;
           }
         }
 

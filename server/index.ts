@@ -243,20 +243,35 @@ async function proxyWhoop(endpoint: string, res: express.Response) {
   }
 }
 
-app.get('/api/whoop/recovery', (req, res) => {
-  const { start, end } = req.query;
-  let endpoint = '/recovery';
-  if (start && end) {
-    endpoint += `?start=${start}T00:00:00.000Z&end=${end}T23:59:59.999Z`;
+app.get('/api/whoop/recovery', async (_req, res) => {
+  try {
+    // Get the latest cycle first, then fetch its recovery
+    const cycleData = (await fetchWhoop('/cycle?limit=1')) as {
+      records: Array<{ id: number }>;
+    };
+    const latestCycle = cycleData.records?.[0];
+    if (!latestCycle) {
+      res.json({ score: null });
+      return;
+    }
+    const recovery = await fetchWhoop(`/cycle/${latestCycle.id}/recovery`);
+    res.json(recovery);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    if (message.includes('Not authenticated')) {
+      res.status(401).json({ error: message });
+    } else {
+      console.error('WHOOP recovery error:', err);
+      res.status(502).json({ error: 'Failed to fetch recovery' });
+    }
   }
-  proxyWhoop(endpoint, res);
 });
 
 app.get('/api/whoop/cycle', (req, res) => {
   const { start, end } = req.query;
-  let endpoint = '/cycle';
+  let endpoint = '/cycle?limit=1';
   if (start && end) {
-    endpoint += `?start=${start}T00:00:00.000Z&end=${end}T23:59:59.999Z`;
+    endpoint = `/cycle?start=${start}T00:00:00.000Z&end=${end}T23:59:59.999Z`;
   }
   proxyWhoop(endpoint, res);
 });
