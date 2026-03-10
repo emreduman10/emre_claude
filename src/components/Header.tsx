@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useWhoopData } from '../hooks/useWhoopData';
 import { getRecoveryZone } from '../utils/recoveryZone';
@@ -8,41 +7,8 @@ export function Header() {
   const { recovery, hrv, rhr, strain, loading: whoopLoading } = useWhoopData();
   const zone = getRecoveryZone(recovery);
 
-  const [authUrl, setAuthUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-
   const formatValue = (val: number | null, suffix = '') =>
     val !== null ? `${val}${suffix}` : '—';
-
-  const handleSignIn = async () => {
-    try {
-      const res = await fetch('/api/auth/url');
-      const data = await res.json();
-      if (data.url) {
-        setAuthUrl(data.url);
-      }
-    } catch (err) {
-      console.error('Failed to fetch auth URL:', err);
-    }
-  };
-
-  const handleCopy = async () => {
-    if (!authUrl) return;
-    try {
-      await navigator.clipboard.writeText(authUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback: select the input text
-      const input = document.querySelector<HTMLInputElement>('#whoop-auth-url');
-      if (input) {
-        input.select();
-        document.execCommand('copy');
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }
-    }
-  };
 
   return (
     <header className="bg-gray-900 border-b border-gray-800 px-4 py-3">
@@ -55,34 +21,12 @@ export function Header() {
           {authLoading ? (
             <span className="text-gray-500 animate-pulse">Loading...</span>
           ) : !isAuthenticated ? (
-            authUrl ? (
-              <div className="flex items-center gap-2">
-                <input
-                  id="whoop-auth-url"
-                  type="text"
-                  readOnly
-                  value={authUrl}
-                  className="bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded border border-gray-700 w-64 font-mono"
-                  onFocus={(e) => e.target.select()}
-                />
-                <button
-                  onClick={handleCopy}
-                  className="px-3 py-1 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded transition-colors cursor-pointer border-none whitespace-nowrap"
-                >
-                  {copied ? 'Copied!' : 'Copy'}
-                </button>
-                <span className="text-gray-500 text-xs">
-                  Open in browser, then return here
-                </span>
-              </div>
-            ) : (
-              <button
-                onClick={handleSignIn}
-                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer border-none"
-              >
-                Sign in with WHOOP
-              </button>
-            )
+            <a
+              href="http://localhost:3001/api/auth/login"
+              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors inline-block no-underline"
+            >
+              Sign in with WHOOP
+            </a>
           ) : whoopLoading ? (
             <span className="text-gray-500 animate-pulse">
               Loading WHOOP data...
