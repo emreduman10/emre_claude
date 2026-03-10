@@ -36,7 +36,28 @@ interface TokenStore {
   expires_at: number;
 }
 
-let tokens: TokenStore | null = null;
+const TOKENS_FILE = path.join(__dirname, '.tokens.json');
+
+function loadTokens(): TokenStore | null {
+  try {
+    if (fs.existsSync(TOKENS_FILE)) {
+      return JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf-8'));
+    }
+  } catch {
+    // ignore corrupt file
+  }
+  return null;
+}
+
+function saveTokens(t: TokenStore | null) {
+  if (t) {
+    fs.writeFileSync(TOKENS_FILE, JSON.stringify(t));
+  } else if (fs.existsSync(TOKENS_FILE)) {
+    fs.unlinkSync(TOKENS_FILE);
+  }
+}
+
+let tokens: TokenStore | null = loadTokens();
 
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
@@ -125,6 +146,7 @@ app.get('/api/auth/callback', async (req, res) => {
       refresh_token: data.refresh_token,
       expires_at: Date.now() + data.expires_in * 1000,
     };
+    saveTokens(tokens);
 
     res.redirect(FRONTEND_URL);
   } catch (err) {
@@ -139,6 +161,7 @@ app.get('/api/auth/status', (_req, res) => {
 
 app.post('/api/auth/logout', (_req, res) => {
   tokens = null;
+  saveTokens(null);
   res.json({ success: true });
 });
 
@@ -167,6 +190,7 @@ async function ensureValidToken(): Promise<string | null> {
     if (!response.ok) {
       console.error('Token refresh failed:', response.status);
       tokens = null;
+      saveTokens(null);
       return null;
     }
 
@@ -176,11 +200,13 @@ async function ensureValidToken(): Promise<string | null> {
       refresh_token: data.refresh_token,
       expires_at: Date.now() + data.expires_in * 1000,
     };
+    saveTokens(tokens);
 
     return tokens.access_token;
   } catch (err) {
     console.error('Token refresh error:', err);
     tokens = null;
+    saveTokens(null);
     return null;
   }
 }
