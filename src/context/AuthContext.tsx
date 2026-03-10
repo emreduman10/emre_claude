@@ -36,6 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('focus', onFocus);
   }, [checkAuth]);
 
+  // Poll for auth status every 3s while not authenticated
+  // (focus listener may not fire in sandbox environments)
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const interval = setInterval(checkAuth, 3000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, checkAuth]);
+
   const login = useCallback(() => {
     window.location.href = '/api/auth/login';
   }, []);

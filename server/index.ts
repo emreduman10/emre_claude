@@ -58,6 +58,20 @@ app.get('/api/auth/login', (_req, res) => {
   res.redirect(`${WHOOP_AUTH_URL}?${params.toString()}`);
 });
 
+app.get('/api/auth/url', (_req, res) => {
+  if (!CLIENT_ID) {
+    res.status(500).json({ error: 'WHOOP_CLIENT_ID not configured' });
+    return;
+  }
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'code',
+    scope: SCOPES,
+  });
+  res.json({ url: `${WHOOP_AUTH_URL}?${params.toString()}` });
+});
+
 app.get('/api/auth/callback', async (req, res) => {
   const code = req.query.code as string;
 
