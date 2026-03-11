@@ -254,7 +254,21 @@ app.get('/api/whoop/recovery', async (_req, res) => {
       res.json({ score: null });
       return;
     }
-    const recovery = await fetchWhoop(`/cycle/${latestCycle.id}/recovery`);
+    const accessToken = await ensureValidToken();
+    if (!accessToken) { res.status(401).json({ error: 'Not authenticated' }); return; }
+    const recoveryRes = await fetch(
+      `${WHOOP_API_BASE}/cycle/${latestCycle.id}/recovery`,
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+    // 404 means no recovery for this cycle (pending/unscorable) — not an error
+    if (recoveryRes.status === 404) {
+      res.json({ score: null });
+      return;
+    }
+    if (!recoveryRes.ok) {
+      throw new Error(`WHOOP API error: ${recoveryRes.status}`);
+    }
+    const recovery = await recoveryRes.json();
     res.json(recovery);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
